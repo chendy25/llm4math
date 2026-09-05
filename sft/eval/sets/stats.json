@@ -1,0 +1,35 @@
+{
+  "train_success_ids": 5138,
+  "splits": {
+    "aime2025": {
+      "all": 30,
+      "heldout": 26
+    },
+    "minif2f_testset": {
+      "all": 244,
+      "heldout": 216
+    },
+    "proofnet_testset": {
+      "all": 186,
+      "heldout": 171
+    },
+    "putnam_v4": {
+      "all": 644,
+      "heldout": 613
+    },
+    "phyx_test_mini": {
+      "all": 1000,
+      "heldout": 646
+    },
+    "seephys": {
+      "all": 2000,
+      "heldout": 1515
+    },
+    "physunibench": {
+      "all": 3304,
+      "heldout": 2533
+    }
+  },
+  "math_heldout_total": 1026,
+  "physics_core_heldout_total": 4694
+}

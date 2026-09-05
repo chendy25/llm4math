@@ -1,0 +1,8 @@
+.tokenhub.env
+.serper.env
+.dashscope.env
+.llm.env
+*.env
+*.tmp
+*.log
+*.pid

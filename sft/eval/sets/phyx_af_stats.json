@@ -1,0 +1,14 @@
+{
+  "n": 256,
+  "by_config": {
+    "PhyX": 166,
+    "mathverse": 60,
+    "SYNTHETIC_GEOMETRY": 20,
+    "ANALYTIC_GEOMETRY": 10
+  },
+  "images_ok": 256,
+  "physics_rows": 166,
+  "math_rows": 90,
+  "snapshot": "/mnt/afs_reason/chendongyang/code/data/hf_datasets/menik1126__PhyX-AF",
+  "note": "HF dump is 256 rows; MMFormalizer paper cited 115."
+}

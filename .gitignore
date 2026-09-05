@@ -1,0 +1,131 @@
+# --- weights / checkpoints / merge dumps ---
+**/checkpoint-*/
+sft/output/
+**/*.safetensors
+**/*.bin
+**/*.pt
+**/*.pth
+**/*.ckpt
+**/*.gguf
+**/*.onnx
+**/*.npz
+**/*.h5
+
+# --- large data ---
+sft/data/**/*.jsonl
+sft/data/**/*.parquet
+sft/data_v1_archive/
+sft/eval/runs/
+sft/logs/
+**/*.parquet
+**/*.arrow
+**/*.feather
+**/*.lmdb
+**/*.tar
+**/*.tar.gz
+**/*.tgz
+**/*.zip
+**/*.7z
+**/*.zst
+**/*.xz
+
+# keep small eval *set definitions* (jsonl of prompts), not rollouts
+# sft/eval/sets/ is tracked
+
+# --- Lean / Kimina build artifacts ---
+**/.lake/
+**/lake-packages/
+**/*.olean
+**/*.ilean
+kimina-lean-server/**/build/
+kimina-lean-server/**/.lake/
+
+# --- images / media shipped with seeds ---
+**/*_images/
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.webp
+**/*.gif
+**/*.mp4
+
+# --- python / editor ---
+**/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.idea/
+.vscode/
+
+# --- secrets ---
+**/.tokenhub.env
+**/.serper.env
+**/.llm.env
+**/.dashscope.env
+**/.local_llm.env
+**/.env
+!**/.env.example
+**/*.pem
+**/*.key
+**/credentials.json
+
+# --- logs / pid ---
+**/*.log
+**/*.nohup.out
+**/*.pid
+**/*.tmp
+**/*.bak
+**/*.bak_*
+**/*~
+
+# --- CCI / local generated junk ---
+**/*.generated.yaml
+sft/scripts/__pycache__/
+
+# --- verl runtime ---
+verl/outputs/
+verl/checkpoints/
+verl/**/wandb/
+verl/**/tensorboard/
+
+# --- search indexes / embeddings ---
+**/*.faiss
+**/*.index
+LeanSearch-v2/**/index*/
+LeanSearch-v2/**/*.npy
+
+# --- vendor clones (each has its own .git); do not nest them ---
+/LeanSearch-v2/
+/Multimodal_Autoformalization/
+/autoformalization_search/
+/verl/
+
+# ReForm upstream clone: track train Python + leanclient, not data dumps
+/ReForm/.git.upstream/
+/ReForm/*
+!/ReForm/data/
+/ReForm/data/*
+!/ReForm/data/train/
+!/ReForm/leanclient/
+!/ReForm/leanclient/**
+/ReForm/data/train/**/*.jsonl
+/ReForm/data/train/**/*.json
+/ReForm/data/train/poc_phyx/*.log
+/ReForm/data/train/sft_collect/**/seeds/
+/ReForm/data/train/sft_collect/**/*_images/
+
+# Kimina: only the deploy / warmup scripts we maintain
+/kimina-lean-server/*
+!/kimina-lean-server/*.sh
+!/kimina-lean-server/*.py
+!/kimina-lean-server/*.md
+
+# large eval prompt dumps (multi-MB)
+/sft/eval/sets/physics_physunibench_*.jsonl
+/sft/eval/sets/physics_core_*.jsonl
+/sft/eval/sets/physics_seephys_*.jsonl
+/sft/eval/sets/phyx_af_*.jsonl
