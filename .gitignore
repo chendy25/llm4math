@@ -12,8 +12,7 @@ sft/output/
 **/*.h5
 
 # --- large data ---
-sft/data/**/*.jsonl
-sft/data/**/*.parquet
+sft/data/
 sft/data_v1_archive/
 sft/eval/runs/
 sft/logs/
@@ -80,7 +79,10 @@ venv/
 **/*.tmp
 **/*.bak
 **/*.bak_*
+**/*.norewrite.bak
 **/*~
+ReForm/data/train/sft_collect/logs/
+ReForm/data/train/MinerU_markdown_*.md
 
 # --- CCI / local generated junk ---
 **/*.generated.yaml
@@ -112,6 +114,7 @@ LeanSearch-v2/**/*.npy
 !/ReForm/data/train/
 !/ReForm/leanclient/
 !/ReForm/leanclient/**
+/ReForm/leanclient/**/__pycache__/
 /ReForm/data/train/**/*.jsonl
 /ReForm/data/train/**/*.json
 /ReForm/data/train/poc_phyx/*.log
