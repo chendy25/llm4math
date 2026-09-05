@@ -1,11 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# ReForm SFT-LoRA on local Qwen3.5-9B (ms-swift). v3 = tool-prompt mix.
+# ReForm SFT-LoRA on local Qwen3.5-9B (ms-swift). v4 = schema-only tool mix.
 ROOT=/mnt/afs_reason/chendongyang/code
 MODEL_PATH=${MODEL_PATH:-$ROOT/data/models/Qwen3.5-9B}
-DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools.jsonl}
-OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v3}
+DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools_v4.jsonl}
+OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v4}
 
 NUM_TRAIN_EPOCHS=${NUM_TRAIN_EPOCHS:-2}
 LEARNING_RATE=${LEARNING_RATE:-1e-4}
@@ -34,6 +34,19 @@ if [ ! -x "$SWIFT" ]; then
     echo "swift missing: $SWIFT" >&2
     exit 1
 fi
+
+# Re-apply local loss_scale plugin (AFS has wiped other.py before).
+PATCH_DIR=$ROOT/llm4math/sft/patches/ms-swift
+MS_SWIFT=$ROOT/ms-swift
+if [ -f "$PATCH_DIR/swift/loss_scale/other.py" ]; then
+    mkdir -p "$MS_SWIFT/swift/loss_scale/config"
+    cp -f "$PATCH_DIR/swift/loss_scale/other.py" "$MS_SWIFT/swift/loss_scale/other.py"
+    cp -f "$PATCH_DIR/swift/loss_scale/config/ignore_tool_response.json" \
+        "$MS_SWIFT/swift/loss_scale/config/ignore_tool_response.json"
+    cp -f "$PATCH_DIR/swift/loss_scale/mapping.py" "$MS_SWIFT/swift/loss_scale/mapping.py"
+    echo "[sft] applied ms-swift loss_scale patch from $PATCH_DIR"
+fi
+export PYTHONPATH=$MS_SWIFT${PYTHONPATH:+:$PYTHONPATH}
 
 mkdir -p "$OUTPUT_DIR"
 export NPROC_PER_NODE=${GPU_PER_NODE}

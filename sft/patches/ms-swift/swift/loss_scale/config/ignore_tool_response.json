@@ -1,0 +1,5 @@
+{
+    "<tool_response>[\\s\\S]*?</tool_response>": [0.0],
+    "^<think>\\s*</think>\\s*": [0.0],
+    "^</think>\\s*": [0.0]
+}

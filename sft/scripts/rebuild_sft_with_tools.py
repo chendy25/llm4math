@@ -3,7 +3,7 @@
 
 Reads the v2 split files (math / physics / physlib), appends
 ``prompts.tool_prompt(domain)`` after the existing user instruction, and
-writes train_mix_tools.jsonl. Assistant turns are unchanged.
+writes train_mix_tools_v4.jsonl. Assistant turns are unchanged.
 """
 from __future__ import annotations
 
@@ -72,11 +72,11 @@ def main() -> None:
             out_rows.append(rec)
             stats[name] += 1
     random.shuffle(out_rows)
-    dest = DATA / "train_mix_tools.jsonl"
+    dest = DATA / "train_mix_tools_v4.jsonl"
     with dest.open("w") as f:
         for rec in out_rows:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    smoke = DATA / "train_smoke_tools.jsonl"
+    smoke = DATA / "train_smoke_tools_v4.jsonl"
     with smoke.open("w") as f:
         for rec in out_rows[:50]:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")

@@ -119,57 +119,47 @@ Think about the consistent result:"""
 REFORM_USER_INSTRUCTION = """Think step by step to translate the mathematical problem in natural language to Lean 4, and verify the consistency.
 {informal_statement}"""
 
-try:
-    from .physsearch_tool import TOOL_DESCRIPTION as _PHYSSEARCH_TOOL_DESCRIPTION
-    from .web_search_tool import TOOL_DESCRIPTION as _WEB_SEARCH_TOOL_DESCRIPTION
-    from .physics_header import prompt_header_block as _physics_header_block
-except ImportError:
-    from physsearch_tool import TOOL_DESCRIPTION as _PHYSSEARCH_TOOL_DESCRIPTION
-    from web_search_tool import TOOL_DESCRIPTION as _WEB_SEARCH_TOOL_DESCRIPTION
-    from physics_header import prompt_header_block as _physics_header_block
+# v4 user catalog: wire schema + one-line purpose. No routing / compile strategy.
+_TOOL_CALL_PREAMBLE = (
+    "# Tools\n"
+    "To call a tool, output exactly one <tool_call> JSON block and stop.\n"
+    "The runtime splices <tool_response> and you continue."
+)
+_PHYSSEARCH_SCHEMA = (
+    "physsearch\n"
+    "  Search Physlib / PhysLean / QuantumInfo (and related Mathlib) declarations.\n"
+    '  {"name": "physsearch", "arguments": {"query": "...", "num_results": 8}}'
+)
+_LEANSEARCH_SCHEMA = (
+    "leansearch\n"
+    "  Search Mathlib declarations.\n"
+    '  {"name": "leansearch", "arguments": {"query": "...", "num_results": 8}}'
+)
+_WEB_SEARCH_SCHEMA = (
+    "web_search\n"
+    "  Search the web for informal facts (constants, units, wording). Not Lean names.\n"
+    '  {"name": "web_search", "arguments": {"query": "...", "num_results": 5}}'
+)
 
 
 def tool_prompt(domain: str = "math") -> str:
-    """Catalog of tools the model may call. Same text for SFT, eval, and RL.
+    """Short tool schema for SFT / eval / RL. Same text in all three.
 
     Math: leansearch + web_search. Physics: physsearch + leansearch + web_search.
-    The runtime must actually execute ``<tool_call>`` and splice ``<tool_response>``.
+    No prefer / skip / only-use-retrieved-names rules. The runtime must still
+    execute ``<tool_call>`` and splice ``<tool_response>``.
     """
     domain = (domain or "math").strip().lower()
     if domain in ("physics", "physlib", "physlib_lib", "phyx", "seephys", "physunibench"):
-        header = _physics_header_block()
-        return (
-            "# Tools\n"
-            "You have retrieval tools. To call one, output exactly one "
-            "<tool_call> JSON block and STOP; the result is spliced back as "
-            "<tool_response> and you then continue.\n\n"
-            "Prefer `physsearch` for physics names and the Mathlib lemmas those "
-            "formalizations need. `leansearch` is optional for a pure Mathlib "
-            "lemma. `web_search` is only for informal facts, not Lean names.\n\n"
-            f"{_PHYSSEARCH_TOOL_DESCRIPTION}\n\n"
-            f"{_LEANSEARCH_TOOL_DESCRIPTION}\n\n"
-            f"{_WEB_SEARCH_TOOL_DESCRIPTION}\n\n"
-            "# Lean 4.29 / Physlib (required)\n"
-            "The ```lean4 block MUST begin with EXACTLY this header (verbatim, "
-            "these lines first, in this order):\n"
-            f"```lean4\n{header}\n```\n"
-            "You MAY append more specific Physlib / PhysLean / QuantumInfo "
-            "imports discovered via physsearch AFTER these lines. Do NOT drop "
-            "the header and do NOT invent top-level imports.\n"
-            "Only use Physlib names that appeared in a `physsearch` result. "
-            "If retrieval is empty, keep `import Physlib` and formalize with "
-            "`ℝ` / `Real`. End with `:= by sorry`."
+        parts = (
+            _TOOL_CALL_PREAMBLE,
+            _PHYSSEARCH_SCHEMA,
+            _LEANSEARCH_SCHEMA,
+            _WEB_SEARCH_SCHEMA,
         )
-    return (
-        "# Tools\n"
-        "You have retrieval tools. To call one, output exactly one "
-        "<tool_call> JSON block and STOP; the result is spliced back as "
-        "<tool_response> and you then continue.\n\n"
-        "Do not call `physsearch` on a pure math problem. `web_search` is "
-        "only for informal facts, not Lean / Mathlib names.\n\n"
-        f"{_LEANSEARCH_TOOL_DESCRIPTION}\n\n"
-        f"{_WEB_SEARCH_TOOL_DESCRIPTION}"
-    )
+    else:
+        parts = (_TOOL_CALL_PREAMBLE, _LEANSEARCH_SCHEMA, _WEB_SEARCH_SCHEMA)
+    return "\n\n".join(parts)
 
 
 def format_user_prompt(informal_statement: str, domain: str = "math") -> str:
