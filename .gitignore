@@ -101,14 +101,21 @@ LeanSearch-v2/**/index*/
 LeanSearch-v2/**/*.npy
 
 # --- vendor clones (each has its own .git); do not nest them ---
-/LeanSearch-v2/
+# LeanSearch-v2: track server source + deploy scripts, not 7G indexes/corpora.
+/LeanSearch-v2/.git.upstream/
+/LeanSearch-v2/data/
+/LeanSearch-v2/external/
+/LeanSearch-v2/reports/
+/LeanSearch-v2/outputs/
+/LeanSearch-v2/config.local.yaml
+/LeanSearch-v2/*.local.yaml
 /Multimodal_Autoformalization/
 /autoformalization_search/
 
 # verl lives in this repo. Nested official history stays local-only.
 /verl/.git.upstream/
 
-# ReForm upstream clone: track train Python + leanclient, not data dumps
+# ReForm: track collection/eval Python + paper scripts, not data dumps / slime
 /ReForm/.git.upstream/
 /ReForm/*
 !/ReForm/data/
@@ -116,6 +123,14 @@ LeanSearch-v2/**/*.npy
 !/ReForm/data/train/
 !/ReForm/leanclient/
 !/ReForm/leanclient/**
+!/ReForm/lean_plugins/
+!/ReForm/lean_plugins/**
+!/ReForm/sft_scripts/
+!/ReForm/sft_scripts/**
+!/ReForm/rl_scripts/
+!/ReForm/rl_scripts/**
+!/ReForm/script/
+!/ReForm/script/**
 /ReForm/leanclient/**/__pycache__/
 /ReForm/data/train/**/*.jsonl
 /ReForm/data/train/**/*.json
@@ -123,11 +138,21 @@ LeanSearch-v2/**/*.npy
 /ReForm/data/train/sft_collect/**/seeds/
 /ReForm/data/train/sft_collect/**/*_images/
 
-# Kimina: only the deploy / warmup scripts we maintain
+# Kimina: deploy scripts + server/client, not mathlib / runtime / lake
 /kimina-lean-server/*
 !/kimina-lean-server/*.sh
 !/kimina-lean-server/*.py
 !/kimina-lean-server/*.md
+!/kimina-lean-server/server/
+!/kimina-lean-server/server/**
+!/kimina-lean-server/client/
+!/kimina-lean-server/client/**
+!/kimina-lean-server/pyproject.toml
+!/kimina-lean-server/requirements.txt
+!/kimina-lean-server/Dockerfile
+!/kimina-lean-server/compose.yaml
+!/kimina-lean-server/compose-dev.yaml
+/kimina-lean-server/**/__pycache__/
 
 # large eval prompt dumps (multi-MB)
 /sft/eval/sets/physics_physunibench_*.jsonl

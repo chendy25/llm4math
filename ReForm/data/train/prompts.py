@@ -119,52 +119,54 @@ Think about the consistent result:"""
 REFORM_USER_INSTRUCTION = """Think step by step to translate the mathematical problem in natural language to Lean 4, and verify the consistency.
 {informal_statement}"""
 
-# v4 user catalog: wire schema + one-line purpose. No routing / compile strategy.
+# v5 system: one-line task identity + call format. No routing / preferred order.
+_SYSTEM_IDENTITY = (
+    "You are an autoformalization assistant. "
+    "Translate informal problems into Lean 4 theorem statements."
+)
 _TOOL_CALL_PREAMBLE = (
     "# Tools\n"
     "To call a tool, output exactly one <tool_call> JSON block and stop.\n"
     "The runtime splices <tool_response> and you continue."
 )
-_PHYSSEARCH_SCHEMA = (
-    "physsearch\n"
-    "  Search Physlib / PhysLean / QuantumInfo (and related Mathlib) declarations.\n"
-    '  {"name": "physsearch", "arguments": {"query": "...", "num_results": 8}}'
-)
 _LEANSEARCH_SCHEMA = (
     "leansearch\n"
-    "  Search Mathlib declarations.\n"
+    "  Search math-related content.\n"
     '  {"name": "leansearch", "arguments": {"query": "...", "num_results": 8}}'
+)
+_PHYSSEARCH_SCHEMA = (
+    "physsearch\n"
+    "  Search physics-related content.\n"
+    '  {"name": "physsearch", "arguments": {"query": "...", "num_results": 8}}'
 )
 _WEB_SEARCH_SCHEMA = (
     "web_search\n"
-    "  Search the web for informal facts (constants, units, wording). Not Lean names.\n"
+    "  Search the web for related content.\n"
     '  {"name": "web_search", "arguments": {"query": "...", "num_results": 5}}'
 )
 
 
 def tool_prompt(domain: str = "math") -> str:
-    """Short tool schema for SFT / eval / RL. Same text in all three.
+    """Tool schema for the system turn. Same text in SFT / eval / RL.
 
-    Math: leansearch + web_search. Physics: physsearch + leansearch + web_search.
-    No prefer / skip / only-use-retrieved-names rules. The runtime must still
-    execute ``<tool_call>`` and splice ``<tool_response>``.
+    Math: leansearch + web_search. Physics: those two plus physsearch.
+    Blocks are alphabetical so the list does not imply a call order.
     """
     domain = (domain or "math").strip().lower()
     if domain in ("physics", "physlib", "physlib_lib", "phyx", "seephys", "physunibench"):
-        parts = (
-            _TOOL_CALL_PREAMBLE,
-            _PHYSSEARCH_SCHEMA,
-            _LEANSEARCH_SCHEMA,
-            _WEB_SEARCH_SCHEMA,
-        )
+        blocks = (_LEANSEARCH_SCHEMA, _PHYSSEARCH_SCHEMA, _WEB_SEARCH_SCHEMA)
     else:
-        parts = (_TOOL_CALL_PREAMBLE, _LEANSEARCH_SCHEMA, _WEB_SEARCH_SCHEMA)
-    return "\n\n".join(parts)
+        blocks = (_LEANSEARCH_SCHEMA, _WEB_SEARCH_SCHEMA)
+    return "\n\n".join((_TOOL_CALL_PREAMBLE,) + blocks)
+
+
+def format_system_prompt(domain: str = "math") -> str:
+    """System turn: identity + tool call format. User stays instruction + problem."""
+    return _SYSTEM_IDENTITY + "\n\n" + tool_prompt(domain)
 
 
 def format_user_prompt(informal_statement: str, domain: str = "math") -> str:
-    """User turn for SFT / eval / RL: instruction + problem + tool catalog."""
-    body = REFORM_USER_INSTRUCTION.format(
+    """User turn for SFT / eval / RL: instruction + problem only."""
+    return REFORM_USER_INSTRUCTION.format(
         informal_statement=(informal_statement or "").strip()
     ).rstrip()
-    return body + "\n\n" + tool_prompt(domain)

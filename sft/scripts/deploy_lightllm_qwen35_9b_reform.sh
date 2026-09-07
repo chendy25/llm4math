@@ -6,8 +6,8 @@ set -euo pipefail
 export LOADWORKER=18
 export LIGHTLLM_TRITON_AUTOTUNE_LEVEL=1
 
-SOURCE_MODEL=${SOURCE_MODEL:-/mnt/afs_reason/chendongyang/code/llm4math/sft/output/qwen35_9b_reform_merged_v3/checkpoint-312}
-MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft-v3}
+SOURCE_MODEL=${SOURCE_MODEL:-/mnt/afs_reason/chendongyang/code/llm4math/sft/output/qwen35_9b_reform_merged_v5/checkpoint-312}
+MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft-v5}
 MODEL_PATH=${MODEL_PATH:-/root/${MODEL_NAME}}
 CHAT_TEMPLATE=${CHAT_TEMPLATE:-/mnt/afs_agents/hongjiawei/tools/lightllm_qwen35/chat-template_multimodal.jinja}
 PORT=${PORT:-8000}

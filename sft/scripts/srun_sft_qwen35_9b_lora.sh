@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit ReForm Qwen3.5-9B SFT-LoRA (schema-only tool mix v4).
+# Submit ReForm Qwen3.5-9B SFT-LoRA (system-turn tool schema v5).
 #
 #   bash scripts/srun_sft_qwen35_9b_lora.sh
 set -euo pipefail
@@ -13,16 +13,16 @@ WORKSPACE=${WORKSPACE:-rl}
 if [ "$SMOKE" = "1" ]; then
     GPU_PER_NODE=${GPU_PER_NODE:-1}
     SCRIPT=$ROOT/llm4math/sft/scripts/sft_qwen35_9b_lora.sh
-    name="reform_qwen35_9b_sft_lora_v4_smoke"
-    DATASET=$ROOT/llm4math/sft/data/train_smoke_tools_v4.jsonl
-    OUTPUT_DIR=$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v4_smoke
+    name="reform_qwen35_9b_sft_lora_v5_smoke"
+    DATASET=$ROOT/llm4math/sft/data/train_smoke_tools_v5.jsonl
+    OUTPUT_DIR=$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v5_smoke
     GRADIENT_ACCUMULATION_STEPS=${GRADIENT_ACCUMULATION_STEPS:-1}
 else
     GPU_PER_NODE=${GPU_PER_NODE:-4}
     SCRIPT=$ROOT/llm4math/sft/scripts/sft_qwen35_9b_lora.sh
-    name=${JOB_NAME:-reform_qwen35_9b_sft_lora_v4}
-    DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools_v4.jsonl}
-    OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v4}
+    name=${JOB_NAME:-reform_qwen35_9b_sft_lora_v5}
+    DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools_v5.jsonl}
+    OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v5}
     GRADIENT_ACCUMULATION_STEPS=${GRADIENT_ACCUMULATION_STEPS:-16}
 fi
 

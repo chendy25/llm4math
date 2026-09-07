@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Rewrite SFT jsonl user turns so they include the shared tool catalog.
+"""Rebuild the SFT mix with tool schema on the system turn (v5).
 
-Reads the v2 split files (math / physics / physlib), appends
-``prompts.tool_prompt(domain)`` after the existing user instruction, and
-writes train_mix_tools_v4.jsonl. Assistant turns are unchanged.
+Reads the v2 split files (math / physics / physlib). User stays instruction +
+problem. A system message gets ``prompts.format_system_prompt(domain)``.
+Assistant turns are unchanged.
 """
 from __future__ import annotations
 
@@ -17,9 +17,10 @@ TRAIN = ROOT / "ReForm/data/train"
 DATA = ROOT / "sft/data"
 sys.path.insert(0, str(TRAIN))
 
-from prompts import REFORM_USER_INSTRUCTION, format_user_prompt, tool_prompt  # noqa: E402
+from prompts import REFORM_USER_INSTRUCTION, format_system_prompt, format_user_prompt  # noqa: E402
 
 PREFIX = REFORM_USER_INSTRUCTION.split("{informal_statement}")[0]
+_TOOLS_MARK = "\n\n# Tools\n"
 
 
 def _user_text(content) -> str:
@@ -36,18 +37,22 @@ def _user_text(content) -> str:
     return str(content or "")
 
 
+def _strip_catalog(body: str) -> str:
+    if _TOOLS_MARK in body:
+        return body.split(_TOOLS_MARK, 1)[0].rstrip()
+    return body.rstrip()
+
+
 def _rewrite_user(text: str, domain: str) -> str:
     raw = text or ""
     image = raw.startswith("<image>")
     body = raw[len("<image>") :] if image else raw
-    body = body.strip()
+    body = _strip_catalog(body.strip())
     if body.startswith(PREFIX.strip()):
         informal = body[len(PREFIX) :].lstrip("\n")
         new = format_user_prompt(informal, domain)
-    elif "Formalize the following Physlib" in body:
-        new = body.rstrip() + "\n\n" + tool_prompt("physics")
     else:
-        new = format_user_prompt(body, domain)
+        new = body
     return ("<image>" + new) if image else new
 
 
@@ -64,19 +69,21 @@ def main() -> None:
     stats = {"math": 0, "physics": 0, "physlib": 0}
     for name, domain in (("math", "math"), ("physics", "physics"), ("physlib", "physics")):
         src = DATA / f"{name}.jsonl"
+        system = format_system_prompt(domain)
         for rec in _iter(src):
-            msgs = rec.get("messages") or []
+            msgs = [m for m in (rec.get("messages") or []) if m.get("role") != "system"]
             for m in msgs:
                 if m.get("role") == "user":
                     m["content"] = _rewrite_user(_user_text(m.get("content")), domain)
+            rec["messages"] = [{"role": "system", "content": system}, *msgs]
             out_rows.append(rec)
             stats[name] += 1
     random.shuffle(out_rows)
-    dest = DATA / "train_mix_tools_v4.jsonl"
+    dest = DATA / "train_mix_tools_v5.jsonl"
     with dest.open("w") as f:
         for rec in out_rows:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    smoke = DATA / "train_smoke_tools_v4.jsonl"
+    smoke = DATA / "train_smoke_tools_v5.jsonl"
     with smoke.open("w") as f:
         for rec in out_rows[:50]:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")

@@ -3,8 +3,8 @@
 set -euo pipefail
 
 ROOT=/mnt/afs_reason/chendongyang/code
-ADAPTERS=${ADAPTERS:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v3/v1-20260904-135940/checkpoint-312}
-OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged_v3/checkpoint-312}
+ADAPTERS=${ADAPTERS:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v5/v0-20260906-113745/checkpoint-312}
+OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged_v5/checkpoint-312}
 CONDA_ENV=${CONDA_ENV:-/mnt/afs_reason/chendongyang/conda/ms-swift}
 
 export PATH=$CONDA_ENV/bin:$PATH

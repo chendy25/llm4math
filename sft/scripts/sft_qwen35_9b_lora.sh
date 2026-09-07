@@ -1,11 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# ReForm SFT-LoRA on local Qwen3.5-9B (ms-swift). v4 = schema-only tool mix.
+# ReForm SFT-LoRA on local Qwen3.5-9B (ms-swift). v5 = system-turn tool schema.
 ROOT=/mnt/afs_reason/chendongyang/code
 MODEL_PATH=${MODEL_PATH:-$ROOT/data/models/Qwen3.5-9B}
-DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools_v4.jsonl}
-OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v4}
+DATASET=${DATASET:-$ROOT/llm4math/sft/data/train_mix_tools_v5.jsonl}
+OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v5}
 
 NUM_TRAIN_EPOCHS=${NUM_TRAIN_EPOCHS:-2}
 LEARNING_RATE=${LEARNING_RATE:-1e-4}

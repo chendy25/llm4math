@@ -25,9 +25,9 @@ AFS_AGENTS=019ed8e0-f4f8-71f7-830c-f8a1e667a9ec:/mnt/afs_agents
 AFS_RL=019eab19-b6af-7651-978e-f14eb4b81855:/mnt/afs_rl
 
 MERGE="$SCRIPT_DIR/merge_qwen35_9b_reform_lora.sh"
-ADAPTERS=${ADAPTERS:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v3/v1-20260904-135940/checkpoint-312}
-OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged_v3/checkpoint-312}
-EXPERIMENT_NAME=${EXPERIMENT_NAME:-reform_qwen35_9b_merge_v3}
+ADAPTERS=${ADAPTERS:-$ROOT/llm4math/sft/output/qwen35_9b_reform_lora_v5/v0-20260906-113745/checkpoint-312}
+OUTPUT_DIR=${OUTPUT_DIR:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged_v5/checkpoint-312}
+EXPERIMENT_NAME=${EXPERIMENT_NAME:-reform_qwen35_9b_merge_v5}
 LOG_DIR="$ROOT/llm4math/sft/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/cci_merge_${EXPERIMENT_NAME}_$(date +%Y%m%d_%H%M%S).log"

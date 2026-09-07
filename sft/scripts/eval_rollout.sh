@@ -25,7 +25,7 @@ WORKERS=${WORKERS:-16}
 mkdir -p "$OUT_DIR"
 
 MODEL_URL=${MODEL_URL:?set MODEL_URL e.g. http://10.x.x.x:8000/v1}
-MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft-v3}
+MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft-v5}
 SEARCH_URL=${SEARCH_URL:-http://10.120.1.119:8000}
 VERIFY_URL=${VERIFY_URL:-http://10.120.1.3:8001}
 VERIFY_KEY=${VERIFY_KEY:-reform-lean-key}
@@ -38,9 +38,8 @@ export VERIFY_TIMEOUT="${VERIFY_TIMEOUT:-900}"
 export VERIFY_CANONICAL_HEADER="${VERIFY_CANONICAL_HEADER:-1}"
 export CRITIC_NO_THINKING="${CRITIC_NO_THINKING:-1}"
 export PHYSSEARCH_ON_MATH="${PHYSSEARCH_ON_MATH:-0}"
-# Collection-time constraints appended to the user message (not a system turn).
-# Default off: the trained user prompt only. Set EVAL_PROMPT_PATCH=1 for a
-# separate column; do not mix the two.
+# Collection-time constraints appended to the user message (not the system
+# tool schema). Default off. Set EVAL_PROMPT_PATCH=1 for a separate column.
 EVAL_PROMPT_PATCH=${EVAL_PROMPT_PATCH:-0}
 
 MAX_RESPONSE_TOKENS=${MAX_RESPONSE_TOKENS:-20480}

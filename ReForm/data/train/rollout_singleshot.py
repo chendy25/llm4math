@@ -1,7 +1,10 @@
 """Single-shot ("RL rollout") autoformalization for evaluation.
 
-The SFT target is ONE assistant turn:
+The SFT target is ONE assistant turn after an optional system catalog:
 
+    <|im_start|>system
+    # Tools ...
+    <|im_end|>
     <|im_start|>user
     Think step by step to translate ... {informal_statement}<|im_end|>
     <|im_start|>assistant
@@ -61,11 +64,17 @@ except ImportError:
 IM_START = "<|im_start|>"
 IM_END = "<|im_end|>"
 
-# ms-swift trained with `default_system: None`, so the rendered sequence has no
-# system block at all. Reproducing it exactly matters: an injected system turn
-# is enough to push the model off the trajectory format it was trained on.
+# v5: tool schema is the system turn; user is instruction + problem only.
+# v2–v4 trained with no system block. Do not eval those checkpoints with this
+# prefix. v5 mix / train / eval must all include the same system text.
 PROMPT_TEMPLATE = (
-    f"{IM_START}user\n" "{user}" f"{IM_END}\n" f"{IM_START}assistant\n"
+    f"{IM_START}system\n"
+    "{system}"
+    f"{IM_END}\n"
+    f"{IM_START}user\n"
+    "{user}"
+    f"{IM_END}\n"
+    f"{IM_START}assistant\n"
 )
 
 DEFAULT_TOKENIZER = (
@@ -174,7 +183,10 @@ def build_prompt(
     user = prompts.format_user_prompt(informal_statement, domain)
     if eval_prompt_patch:
         user = user.rstrip() + eval_user_patch(domain)
-    return PROMPT_TEMPLATE.format(user=user)
+    return PROMPT_TEMPLATE.format(
+        system=prompts.format_system_prompt(domain),
+        user=user,
+    )
 
 
 def _choice_text(choice) -> str:
@@ -193,6 +205,7 @@ def _complete(
     temperature: float,
     stop: list[str],
     vision_user: Optional[dict] = None,
+    system: Optional[str] = None,
     body: str = "",
 ):
     """One generation chunk.
@@ -211,7 +224,10 @@ def _complete(
             temperature=temperature,
             stop=stop,
         )
-    messages = [vision_user]
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append(vision_user)
     extra: Optional[dict] = None
     if body:
         messages.append({"role": "assistant", "content": body})
@@ -403,6 +419,7 @@ def rollout_one(
         eval_prompt_patch=eval_prompt_patch,
     )
     vision_user = None
+    system = prompts.format_system_prompt(domain)
     if image is not None:
         user = prompts.format_user_prompt(informal_statement, domain)
         if eval_prompt_patch:
@@ -436,6 +453,7 @@ def rollout_one(
             temperature=temperature,
             stop=[retrieval_tool.TOOL_CALL_CLOSE],
             vision_user=vision_user,
+            system=system,
             body=body,
         )
         choice = resp.choices[0]

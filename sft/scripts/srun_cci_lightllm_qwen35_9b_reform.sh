@@ -27,9 +27,9 @@ AFS_AGENTS=019ed8e0-f4f8-71f7-830c-f8a1e667a9ec:/mnt/afs_agents
 AFS_RL=019eab19-b6af-7651-978e-f14eb4b81855:/mnt/afs_rl
 
 DEPLOY="$SCRIPT_DIR/deploy_lightllm_qwen35_9b_reform.sh"
-SOURCE_MODEL=${SOURCE_MODEL:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged/checkpoint-284}
-MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft}
-EXPERIMENT_NAME=${EXPERIMENT_NAME:-reform_qwen35_9b_lightllm}
+SOURCE_MODEL=${SOURCE_MODEL:-$ROOT/llm4math/sft/output/qwen35_9b_reform_merged_v5/checkpoint-312}
+MODEL_NAME=${MODEL_NAME:-qwen35-9b-reform-sft-v5}
+EXPERIMENT_NAME=${EXPERIMENT_NAME:-reform_qwen35_9b_lightllm_v5}
 LOG_DIR="$ROOT/llm4math/sft/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/cci_lightllm_${EXPERIMENT_NAME}_$(date +%Y%m%d_%H%M%S).log"
