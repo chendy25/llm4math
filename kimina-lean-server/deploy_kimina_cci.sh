@@ -43,7 +43,15 @@ fi
 
 echo "[deploy] staging Physlib $AFS_PHYS -> $PHYS_DIR"
 mkdir -p "$PHYS_DIR"
-rsync -a --delete "$AFS_PHYS/" "$PHYS_DIR/"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --delete "$AFS_PHYS/" "$PHYS_DIR/"
+else
+  echo "[deploy] rsync missing; using cp -a (image has no rsync)"
+  # Fresh dest so leftover files cannot shadow oleans.
+  rm -rf "$PHYS_DIR"
+  mkdir -p "$PHYS_DIR"
+  cp -a "$AFS_PHYS/." "$PHYS_DIR/"
+fi
 cp -f "$AFS_REPL" "$REPL_DST"
 chmod +x "$REPL_DST"
 if [[ -f "$AFS_LAKE_ENV" ]]; then
@@ -60,7 +68,10 @@ export LEAN_SERVER_ENVIRONMENT=prod
 export LEAN_SERVER_LEAN_VERSION=v4.29.1
 export LEAN_SERVER_MAX_REPLS="${LEAN_SERVER_MAX_REPLS:-6}"
 export LEAN_SERVER_MAX_REPL_USES=-1
-export LEAN_SERVER_MAX_REPL_MEM="${LEAN_SERVER_MAX_REPL_MEM:-4G}"
+# Kimina applies this as RLIMIT_AS (virtual address space), not RSS.
+# Lean mmaps the full ~8G Physlib/Mathlib oleans; 4G kills the REPL
+# immediately and /verify returns empty JSON / HTTP 500.
+export LEAN_SERVER_MAX_REPL_MEM="${LEAN_SERVER_MAX_REPL_MEM:-24G}"
 export LEAN_SERVER_MAX_WAIT=180
 export LEAN_SERVER_INIT_REPLS='{}'
 export LEAN_SERVER_API_KEY="${LEAN_SERVER_API_KEY:-reform-lean-key}"
@@ -72,9 +83,38 @@ export KIMINA_USE_LAKE_ENV=0
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy || true
 
 echo "[deploy] hostname=$(hostname) ips=$(hostname -I 2>/dev/null || true)"
-echo "[deploy] python=$PY port=$PORT project=$PHYS_DIR repls=$LEAN_SERVER_MAX_REPLS"
+echo "[deploy] python=$PY port=$PORT project=$PHYS_DIR repls=$LEAN_SERVER_MAX_REPLS mem=$LEAN_SERVER_MAX_REPL_MEM"
 echo "[deploy] log=$LOG"
 echo "$LOG" > "$LOG_DIR/cci_kimina.logpath"
+
+# Cold import Physlib is several minutes; warm once so the first client is not 500/timeout.
+(
+  for i in $(seq 1 60); do
+    if curl -sf --max-time 2 "http://127.0.0.1:${PORT}/health" >/dev/null; then
+      break
+    fi
+    sleep 2
+  done
+  VERIFY_URL="http://127.0.0.1:${PORT}" VERIFY_KEY="${LEAN_SERVER_API_KEY}" \
+    "$PY" - <<'PY' >>"$LOG_DIR/cci_kimina_warmup.log" 2>&1 || true
+import json, os, time, urllib.request
+url = os.environ["VERIFY_URL"].rstrip("/") + "/verify"
+key = os.environ["VERIFY_KEY"]
+code = "import Physlib\n#check Nat\nexample : True := trivial\n"
+payload = json.dumps({
+    "codes": [{"custom_id": "warmup", "proof": code}],
+    "timeout": 600,
+    "disable_cache": False,
+}).encode()
+headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+for i in (1, 2):
+    t0 = time.time()
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req, timeout=660) as r:
+        body = r.read().decode()
+    print(f"warmup{i} elapsed={time.time()-t0:.1f}s {body[:240]}", flush=True)
+PY
+) &
 
 cd "$ROOT"
 exec "$PY" -u -m server 2>&1 | tee "$LOG"
