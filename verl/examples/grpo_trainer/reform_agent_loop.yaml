@@ -1,0 +1,3 @@
+# Tools are loaded from reform_tool_config.yaml (leansearch / physsearch / web_search).
+- name: reform_tool_agent
+  _target_: verl.experimental.agent_loop.reform_tool_agent.ReformToolAgentLoop

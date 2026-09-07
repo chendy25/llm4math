@@ -1,0 +1,58 @@
+tools:
+  - class_name: verl.tools.reform_search_tools.LeanSearchTool
+    config:
+      type: native
+    tool_schema:
+      type: function
+      function:
+        name: leansearch
+        description: Search Mathlib / Lean 4 declaration names by a natural-language query.
+        parameters:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Natural-language or mathematical query.
+            num_results:
+              type: integer
+              description: How many hits to return (1-20).
+          required:
+            - query
+  - class_name: verl.tools.reform_search_tools.PhysSearchTool
+    config:
+      type: native
+    tool_schema:
+      type: function
+      function:
+        name: physsearch
+        description: Search Physlib / physics Lean 4 declaration names.
+        parameters:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Natural-language or physics query.
+            num_results:
+              type: integer
+              description: How many hits to return (1-20).
+          required:
+            - query
+  - class_name: verl.tools.reform_search_tools.WebSearchTool
+    config:
+      type: native
+    tool_schema:
+      type: function
+      function:
+        name: web_search
+        description: Search informal facts (constants, units). Not Lean names.
+        parameters:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Web query.
+            num_results:
+              type: integer
+              description: How many snippets to return (1-10).
+          required:
+            - query

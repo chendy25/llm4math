@@ -104,7 +104,9 @@ LeanSearch-v2/**/*.npy
 /LeanSearch-v2/
 /Multimodal_Autoformalization/
 /autoformalization_search/
-/verl/
+
+# verl lives in this repo. Nested official history stays local-only.
+/verl/.git.upstream/
 
 # ReForm upstream clone: track train Python + leanclient, not data dumps
 /ReForm/.git.upstream/

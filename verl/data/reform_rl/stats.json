@@ -1,0 +1,21 @@
+{
+  "train": {
+    "n": 12836,
+    "math": 6533,
+    "physics": 6303,
+    "with_image": 6303
+  },
+  "train_by_dataset": {
+    "aops": 3514,
+    "numina15_olympiads": 937,
+    "numina15_aops_forum": 973,
+    "numina15_amc_aime": 712,
+    "numina15_olympiads_ref": 397,
+    "phyx": 999,
+    "seephys": 2000,
+    "physunibench": 3304
+  },
+  "dropped_physlib_parallel": {},
+  "source": "/mnt/afs_reason/chendongyang/code/llm4math/verl/data/reform_rl/train_eval_overlap.parquet",
+  "note": "Train = SFT-collection math (official math tests already removed) plus official physics benches PhyX / SeePhys / PhysUniBench. physlib_parallel is excluded. Val is AIME 2025 + PhyX-AF. Those three physics BOTH numbers overlap this train set."
+}
